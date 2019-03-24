@@ -95,7 +95,6 @@ public class PressureDataIncubator {
         FileUtil.readFile("/Users/yuchenglong03/tmp/supplierPressureData.csv");
     }
 
-
     @Setter
     @Getter
     static class RequestData{
