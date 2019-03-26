@@ -47,6 +47,9 @@ public class PressureDataIncubator {
             baseUserId += 3;
             basePhoneA += random.nextInt(4) + 1;
             basePhoneB += random.nextInt(4) + 1;
+            if (basePhoneA == basePhoneB) {
+                continue;
+            }
             requestData.setOuter_unique_id(baseOuterUniqueId);
 
             requestData.setCity_id(genPressureSupplierCityId(requestData.getOuter_unique_id(),cityIdList));
