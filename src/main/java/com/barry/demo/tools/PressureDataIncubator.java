@@ -30,7 +30,7 @@ public class PressureDataIncubator {
         // 3.基础唯一id
         long baseOuterUniqueId = 10000000L;
         long basePhoneA = 12345678910L;
-        long basePhoneB = 22345678911L;
+        long basePhoneB = 22345678910L;
         long baseUserId = 100000L;
         // 4.文件内容
         Random random = new Random();
@@ -38,18 +38,18 @@ public class PressureDataIncubator {
             // 初始化数据参数
             RequestData requestData = new RequestData();
             requestData.setBiz_scenario_type(bizScenarioTypeArry[random.nextInt(3)]);
-            requestData.setDuration(random.nextInt(10) + 1);
+            // 随机产生失效时间
+            requestData.setDuration(random.nextInt(15) + 1);
             requestData.setBiz_type("WAIMAI");
             // 根据UniqueId来灰度区分设置cityID
             // 每次加1
             baseOuterUniqueId += 1;
             // 每次加3
             baseUserId += 3;
-            basePhoneA += random.nextInt(4) + 1;
-            basePhoneB += random.nextInt(4) + 1;
-            if (basePhoneA == basePhoneB) {
-                continue;
-            }
+            // 手机号A和B两个号段，每次加一避免出现重复号码
+            basePhoneA ++;
+            basePhoneB ++;
+
             requestData.setOuter_unique_id(baseOuterUniqueId);
 
             requestData.setCity_id(genPressureSupplierCityId(requestData.getOuter_unique_id(),cityIdList));
@@ -75,24 +75,21 @@ public class PressureDataIncubator {
 
     private Integer genPressureSupplierCityId(Long outer_unique_id, List<Integer> cityIdList) {
         long scale = outer_unique_id % 100;
-        if (scale < 10) {
-            // 移动
-            return cityIdList.get(0);
-        } else if (scale < (10 + 20)) {
+        if (scale < 22) {
             // 东信
-            return cityIdList.get(1);
-        } else if (scale < (10 + 20 + 30)) {
+            return cityIdList.get(0);
+        } else if (scale < (22 + 33)) {
             // 中联
-            return cityIdList.get(2);
+            return cityIdList.get(1);
         } else {
             // 腾讯
-            return cityIdList.get(3);
+            return cityIdList.get(2);
         }
     }
 
     public static void main(String[] args) {
-        // 移动、东信、中联、腾讯
-        List<Integer> cityList = Lists.newArrayList(1101,2201,3304,55);
+        // 东信、中联、腾讯
+        List<Integer> cityList = Lists.newArrayList(2201,3304,55);
         FileUtil.writeFile("/Users/yuchenglong03/tmp/supplierPressureData.csv",
                 new PressureDataIncubator().genPressureData(1000,cityList));
         FileUtil.readFile("/Users/yuchenglong03/tmp/supplierPressureData.csv");
