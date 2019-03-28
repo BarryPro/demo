@@ -32,11 +32,10 @@ public class PressureDataIncubator {
      *
      * @return 返回需要压测的内容
      */
-    private String genPressureData(int size,boolean balanceFlag) {
-        StringBuilder stringBuilder = new StringBuilder();
+    private void genPressureData(int size,boolean balanceFlag,String absolutePath) {
         // 1.文件头
-        String title = "ax_biz_scenario_type,axb_biz_scenario_type,biz_type,city_id,duration,outer_unique_id,phone_a,phone_b,user_id";
-        stringBuilder.append(title).append("\n");
+        String title = "ax_biz_scenario_type,axb_biz_scenario_type,biz_type,city_id,duration,outer_unique_id,phone_a,phone_b,user_id\n";
+        FileUtil.writeFile(absolutePath,title);
         // 2.biz_scenario_type数组
         String [] bizScenarioTypeArry = {"WAIMAI_CUSTOMER_CALL_MERCHANT","WAIMAI_CUSTOMER_CALL_RIDER","WAIMAI_RIDER_CALL_CUSTOMER"};
         // 3.基础唯一id
@@ -46,7 +45,9 @@ public class PressureDataIncubator {
         long baseUserId = 100000L;
         // 4.文件内容
         Random random = new Random();
+        int count = 0;
         for (int i = 0; i < size; i++) {
+            StringBuilder stringBuilder = new StringBuilder();
             // 初始化数据参数
             PressureRequestData requestData = new PressureRequestData();
             requestData.setBiz_scenario_type(bizScenarioTypeArry[random.nextInt(3)]);
@@ -84,9 +85,9 @@ public class PressureDataIncubator {
                     .append(requestData.getPhone_b()).append(COMMA)
                     .append(requestData.getUser_id())
                     .append("\n");
+            FileUtil.writeFile(absolutePath,stringBuilder.toString());
+            System.out.println(++count);
         }
-        // 返回拼接好的文件内容
-        return stringBuilder.toString();
     }
 
     /**
@@ -149,9 +150,9 @@ public class PressureDataIncubator {
      */
     private void initCityIdMap(){
         cityIdMap = new HashMap<>();
-        cityIdMap.put("DX",1000);
-        cityIdMap.put("ZL",1111);
-        cityIdMap.put("TX",2222);
+        cityIdMap.put("DX",999902);
+        cityIdMap.put("ZL",999901);
+        cityIdMap.put("TX",999903);
     }
 
     /**
@@ -170,9 +171,8 @@ public class PressureDataIncubator {
         // 初始化
         incubator.init();
         // 生成多少条数据
-        int size = 1000;
-        FileUtil.writeFile("/Users/yuchenglong03/tmp/supplierPressureData.csv",
-                incubator.genPressureData(size, true));
-        FileUtil.readFile("/Users/yuchenglong03/tmp/supplierPressureData.csv");
+        int size = 1000000;
+        incubator.genPressureData(size, true,"/Users/yuchenglong03/tmp/supplierPressureData100W.csv");
+        FileUtil.readFile("/Users/yuchenglong03/tmp/supplierPressureData100W.csv");
     }
 }

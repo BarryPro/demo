@@ -28,11 +28,14 @@ public class FileUtil {
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(absolutePath)));
             log.warn(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>开始读取文件内容");
             String buffer;
+            // 计数器
+            long count = -1L;
             // -1是读文件流的结束标识想
             while((buffer = reader.readLine()) != null){
-                System.out.println(buffer);
+                count++;
+                //System.out.println(buffer);
             }
-            log.warn(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>文件内容读取完毕");
+            log.warn(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>文件内容读取完毕,一共读取："+count+"行数据");
         } catch (Exception e) {
             log.error("读取文件失败",e);
         } finally {
@@ -55,7 +58,7 @@ public class FileUtil {
     public static void writeFile(String absolutePath,String context){
         BufferedWriter writer = null;
         try {
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(absolutePath)));
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(absolutePath,true)));
             writer.write(context);
             writer.flush();
         } catch (Exception e) {
