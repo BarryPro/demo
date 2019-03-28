@@ -1,26 +1,38 @@
 package com.barry.demo.tools;
 
+import com.barry.demo.model.PressureRequestData;
 import com.barry.demo.util.FileUtil;
-import com.google.common.collect.Lists;
-import lombok.Getter;
-import lombok.Setter;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
- * 压测数据孵化器
+ * 压测数据孵化器-按比例集中式
  *
  * @author yuchenglong03
  * @since 2019-03-22 19:50
  */
 public class PressureDataIncubator {
+
+    // 东信
+    private static final String DX = "DX";
+    // 中联
+    private static final String ZL = "ZL";
+    // 腾讯
+    private static final String TX = "TX";
+
+    // 城市的cityID列表
+    private static Map<String,Integer> cityIdMap;
+    // 供应商控制比例分布map
+    private static Map<String, Integer> supplierCounterMap;
+
     /**
      * 生成压测数据
      *
      * @return 返回需要压测的内容
      */
-    private String genPressureData(int size, List<Integer> cityIdList) {
+    private String genPressureData(int size,boolean balanceFlag) {
         StringBuilder stringBuilder = new StringBuilder();
         // 1.文件头
         String title = "ax_biz_scenario_type,axb_biz_scenario_type,biz_type,city_id,duration,outer_unique_id,phone_a,phone_b,user_id";
@@ -36,10 +48,10 @@ public class PressureDataIncubator {
         Random random = new Random();
         for (int i = 0; i < size; i++) {
             // 初始化数据参数
-            RequestData requestData = new RequestData();
+            PressureRequestData requestData = new PressureRequestData();
             requestData.setBiz_scenario_type(bizScenarioTypeArry[random.nextInt(3)]);
-            // 随机产生失效时间
-            requestData.setDuration(random.nextInt(15) + 1);
+            // 随机产生失效时间 3~15 的随机数
+            requestData.setDuration(random.nextInt(13) + 3);
             requestData.setBiz_type("WAIMAI");
             // 根据UniqueId来灰度区分设置cityID
             // 每次加1
@@ -52,7 +64,11 @@ public class PressureDataIncubator {
 
             requestData.setOuter_unique_id(baseOuterUniqueId);
 
-            requestData.setCity_id(genPressureSupplierCityId(requestData.getOuter_unique_id(),cityIdList));
+            if (balanceFlag) {
+                requestData.setCity_id(genSupplierCityIdByScale());
+            } else {
+                requestData.setCity_id(genPressureSupplierCityId(requestData.getOuter_unique_id()));
+            }
             requestData.setPhone_a(basePhoneA);
             requestData.setPhone_b(basePhoneB);
             requestData.setUser_id(baseUserId);
@@ -73,39 +89,90 @@ public class PressureDataIncubator {
         return stringBuilder.toString();
     }
 
-    private Integer genPressureSupplierCityId(Long outer_unique_id, List<Integer> cityIdList) {
+    /**
+     * 根据比例生成对应供应商的城市id
+     * @return
+     */
+    private Integer genSupplierCityIdByScale(){
+        // 返回东信
+        if ((supplierCounterMap.get(DX) - 1) >= 0) {
+            supplierCounterMap.put(DX,supplierCounterMap.get(DX) - 1);
+            return cityIdMap.get(DX);
+        }
+
+        // 返回中联
+        if ((supplierCounterMap.get(ZL) - 1) >= 0) {
+            supplierCounterMap.put(ZL,supplierCounterMap.get(ZL) - 1);
+            return cityIdMap.get(ZL);
+        }
+
+        // 返回腾讯
+        if ((supplierCounterMap.get(TX) - 1) >= 0) {
+            supplierCounterMap.put(TX,supplierCounterMap.get(TX) - 1);
+            return cityIdMap.get(TX);
+        }
+
+        // 重新初始化供应商计数器
+        initSupplierCounterMap();
+        return genSupplierCityIdByScale();
+    }
+
+    /**
+     * 按比例集中式生成数据
+     * @param outer_unique_id
+     * @return
+     */
+    private Integer genPressureSupplierCityId(Long outer_unique_id) {
         long scale = outer_unique_id % 100;
         if (scale < 22) {
             // 东信
-            return cityIdList.get(0);
+            return cityIdMap.get(DX);
         } else if (scale < (22 + 33)) {
             // 中联
-            return cityIdList.get(1);
+            return cityIdMap.get(ZL);
         } else {
             // 腾讯
-            return cityIdList.get(2);
+            return cityIdMap.get(TX);
         }
     }
 
-    public static void main(String[] args) {
-        // 东信、中联、腾讯
-        List<Integer> cityList = Lists.newArrayList(2201,3304,55);
-        FileUtil.writeFile("/Users/yuchenglong03/tmp/supplierPressureData.csv",
-                new PressureDataIncubator().genPressureData(1000,cityList));
-        FileUtil.readFile("/Users/yuchenglong03/tmp/supplierPressureData.csv");
+    /**
+     * 初始化压测数据比例
+     */
+    private void init() {
+        initCityIdMap();
+        initSupplierCounterMap();
+    }
+
+    /**
+     * 东信、中联、腾讯
+     */
+    private void initCityIdMap(){
+        cityIdMap = new HashMap<>();
+        cityIdMap.put("DX",1000);
+        cityIdMap.put("ZL",1111);
+        cityIdMap.put("TX",2222);
+    }
+
+    /**
+     * 三个供应商的数据比例 东信：中联：腾讯 = 2：3：4
+     */
+    private void initSupplierCounterMap(){
+        supplierCounterMap = new HashMap<>();
+        supplierCounterMap.put("DX",2);
+        supplierCounterMap.put("ZL",3);
+        supplierCounterMap.put("TX",4);
     }
 
 
-    @Setter
-    @Getter
-    static class RequestData{
-        private String biz_type;
-        private Integer city_id;
-        private Integer duration;
-        private Long outer_unique_id;
-        private Long phone_a;
-        private Long phone_b;
-        private Long user_id;
-        private String biz_scenario_type;
+    public static void main(String[] args) {
+        PressureDataIncubator incubator = new PressureDataIncubator();
+        // 初始化
+        incubator.init();
+        // 生成多少条数据
+        int size = 1000;
+        FileUtil.writeFile("/Users/yuchenglong03/tmp/supplierPressureData.csv",
+                incubator.genPressureData(size, true));
+        FileUtil.readFile("/Users/yuchenglong03/tmp/supplierPressureData.csv");
     }
 }
