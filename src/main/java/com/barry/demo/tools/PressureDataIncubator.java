@@ -40,8 +40,8 @@ public class PressureDataIncubator {
         String [] bizScenarioTypeArry = {"WAIMAI_CUSTOMER_CALL_MERCHANT","WAIMAI_CUSTOMER_CALL_RIDER","WAIMAI_RIDER_CALL_CUSTOMER"};
         // 3.基础唯一id
         long baseOuterUniqueId = 10000000L;
-        long basePhoneA = 12345678910L;
-        long basePhoneB = 22345678910L;
+        long basePhoneA = 18645678910L;
+        long basePhoneB = 13845678910L;
         long baseUserId = 100000L;
         // 4.文件内容
         Random random = new Random();
@@ -172,7 +172,7 @@ public class PressureDataIncubator {
         incubator.init();
         // 生成多少条数据
         int size = 1000000;
-        incubator.genPressureData(size, true,"/Users/yuchenglong03/tmp/supplierPressureData100W.csv");
-        FileUtil.readFile("/Users/yuchenglong03/tmp/supplierPressureData100W.csv");
+        incubator.genPressureData(size, true,"/Users/yuchenglong03/tmp/supplierPressureData100W_new.csv");
+        FileUtil.readFile("/Users/yuchenglong03/tmp/supplierPressureData100W_new.csv");
     }
 }
