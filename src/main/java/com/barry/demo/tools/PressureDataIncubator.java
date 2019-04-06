@@ -101,17 +101,17 @@ public class PressureDataIncubator {
             return cityIdMap.get(DX);
         }
 
-        // 返回中联
-        if ((supplierCounterMap.get(ZL) - 1) >= 0) {
-            supplierCounterMap.put(ZL,supplierCounterMap.get(ZL) - 1);
-            return cityIdMap.get(ZL);
-        }
+        //// 返回中联
+        //if ((supplierCounterMap.get(ZL) - 1) >= 0) {
+        //    supplierCounterMap.put(ZL,supplierCounterMap.get(ZL) - 1);
+        //    return cityIdMap.get(ZL);
+        //}
 
         // 返回腾讯
-        if ((supplierCounterMap.get(TX) - 1) >= 0) {
-            supplierCounterMap.put(TX,supplierCounterMap.get(TX) - 1);
-            return cityIdMap.get(TX);
-        }
+        //if ((supplierCounterMap.get(TX) - 1) >= 0) {
+        //    supplierCounterMap.put(TX,supplierCounterMap.get(TX) - 1);
+        //    return cityIdMap.get(TX);
+        //}
 
         // 重新初始化供应商计数器
         initSupplierCounterMap();
@@ -151,8 +151,8 @@ public class PressureDataIncubator {
     private void initCityIdMap(){
         cityIdMap = new HashMap<>();
         cityIdMap.put("DX",999902);
-        cityIdMap.put("ZL",999901);
-        cityIdMap.put("TX",999903);
+        //cityIdMap.put("ZL",999901);
+        //cityIdMap.put("TX",999903);
     }
 
     /**
@@ -160,9 +160,9 @@ public class PressureDataIncubator {
      */
     private void initSupplierCounterMap(){
         supplierCounterMap = new HashMap<>();
-        supplierCounterMap.put("DX",2);
-        supplierCounterMap.put("ZL",3);
-        supplierCounterMap.put("TX",4);
+        supplierCounterMap.put("DX",1);
+        //supplierCounterMap.put("ZL",1);
+        //supplierCounterMap.put("TX",4);
     }
 
 
@@ -172,7 +172,7 @@ public class PressureDataIncubator {
         incubator.init();
         // 生成多少条数据
         int size = 1000000;
-        incubator.genPressureData(size, true,"/Users/yuchenglong03/tmp/supplierPressureData100W_new.csv");
-        FileUtil.readFile("/Users/yuchenglong03/tmp/supplierPressureData100W_new.csv");
+        incubator.genPressureData(size, true,"/Users/yuchenglong03/tmp/supplierPressureData100W_d.csv");
+        FileUtil.readFile("/Users/yuchenglong03/tmp/supplierPressureData100W_d.csv");
     }
 }
